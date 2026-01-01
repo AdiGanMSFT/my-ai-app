@@ -30,6 +30,10 @@
         <div class="task-input-section">
             <div class="input-group">
                 <input type="text" id="taskInput" placeholder="What needs to be done?" autocomplete="off" maxlength="200">
+                <select id="categorySelect" class="category-select">
+                    <option value="">No Category</option>
+                </select>
+                <input type="text" id="newCategoryInput" placeholder="New category..." class="new-category-input" style="display: none;">
                 <select id="prioritySelect" class="priority-select">
                     <option value="low">Low Priority</option>
                     <option value="medium" selected>Medium Priority</option>
@@ -37,6 +41,7 @@
                 </select>
                 <button id="addTaskBtn" class="add-btn">Add Task</button>
             </div>
+            <div id="categorySuggestions" class="category-suggestions" style="display: none;"></div>
             <div class="error-message" id="errorMessage"></div>
             <div class="char-counter" id="charCounter">0 / 200</div>
         </div>
