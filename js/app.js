@@ -3,11 +3,13 @@ class TaskManager {
     constructor() {
         this.tasks = this.loadTasks();
         this.currentFilter = 'all';
+        this.currentTheme = this.loadTheme();
         this.init();
     }
 
     init() {
         this.cacheDOMElements();
+        this.applyTheme(this.currentTheme);
         this.attachEventListeners();
         this.render();
     }
@@ -22,6 +24,7 @@ class TaskManager {
         this.taskCount = document.getElementById('taskCount');
         this.errorMessage = document.getElementById('errorMessage');
         this.charCounter = document.getElementById('charCounter');
+        this.themeSelect = document.getElementById('themeSelect');
     }
 
     attachEventListeners() {
@@ -37,6 +40,10 @@ class TaskManager {
 
         this.filterButtons.forEach(btn => {
             btn.addEventListener('click', (e) => this.setFilter(e.target.dataset.filter));
+        });
+
+        this.themeSelect.addEventListener('change', (e) => {
+            this.changeTheme(e.target.value);
         });
     }
 
@@ -260,6 +267,26 @@ class TaskManager {
     loadTasks() {
         const tasks = localStorage.getItem('tasks');
         return tasks ? JSON.parse(tasks) : [];
+    }
+
+    changeTheme(theme) {
+        this.currentTheme = theme;
+        this.applyTheme(theme);
+        this.saveTheme(theme);
+    }
+
+    applyTheme(theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+        this.themeSelect.value = theme;
+    }
+
+    saveTheme(theme) {
+        localStorage.setItem('theme', theme);
+    }
+
+    loadTheme() {
+        const theme = localStorage.getItem('theme');
+        return theme || 'default';
     }
 }
 
