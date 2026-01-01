@@ -233,13 +233,13 @@ class TaskManager {
                     <button 
                         class="share-btn"
                         aria-label="Share task ${this.escapeHTML(task.text)} via email"
-                        title="Share this task via email">
-                        📧 Share
+                        title="Share via email">
+                        Share
                     </button>
                     <button 
                         class="delete-btn"
                         aria-label="Delete task ${this.escapeHTML(task.text)}"
-                        title="Delete this task">
+                        title="Delete task">
                         Delete
                     </button>
                 </div>
