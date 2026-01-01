@@ -149,6 +149,24 @@ class TaskManager {
         this.render();
     }
 
+    toggleHighPriority(id) {
+        const task = this.tasks.find(t => t.id === id);
+        if (!task) return;
+
+        if (task.priority === 'high') {
+            // Restore original priority if it exists, otherwise set to medium
+            task.priority = task.originalPriority || 'medium';
+            delete task.originalPriority;
+        } else {
+            // Save current priority and set to high
+            task.originalPriority = task.priority;
+            task.priority = 'high';
+        }
+
+        this.saveTasks();
+        this.render();
+    }
+
     shareTask(id) {
         const task = this.tasks.find(t => t.id === id);
         if (!task) return;
@@ -213,16 +231,19 @@ class TaskManager {
         filteredTasks.forEach(task => {
             const taskElement = document.querySelector(`[data-task-id="${task.id}"]`);
             const checkbox = taskElement.querySelector('.task-checkbox');
+            const priorityBtn = taskElement.querySelector('.priority-btn');
             const shareBtn = taskElement.querySelector('.share-btn');
             const deleteBtn = taskElement.querySelector('.delete-btn');
 
             checkbox.addEventListener('change', () => this.toggleTask(task.id));
+            priorityBtn.addEventListener('click', () => this.toggleHighPriority(task.id));
             shareBtn.addEventListener('click', () => this.shareTask(task.id));
             deleteBtn.addEventListener('click', () => this.deleteTask(task.id));
         });
     }
 
     createTaskHTML(task) {
+        const isHighPriority = task.priority === 'high';
         return `
             <li class="task-item ${task.completed ? 'completed' : ''}" data-task-id="${task.id}">
                 <input 
@@ -237,6 +258,12 @@ class TaskManager {
                     <span class="priority-badge priority-${task.priority}" aria-label="${task.priority} priority">${task.priority}</span>
                 </div>
                 <div class="task-actions" role="group" aria-label="Task actions">
+                    <button 
+                        class="priority-btn ${isHighPriority ? 'is-priority' : ''}"
+                        aria-label="${isHighPriority ? 'Remove high priority from' : 'Mark as high priority'} ${this.escapeHTML(task.text)}"
+                        title="${isHighPriority ? 'Remove high priority' : 'Mark as high priority'}">
+                        ${isHighPriority ? '⭐ Priority' : 'Priority'}
+                    </button>
                     <button 
                         class="share-btn"
                         aria-label="Share task ${this.escapeHTML(task.text)} via email"
