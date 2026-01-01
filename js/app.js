@@ -3,6 +3,7 @@ class TaskManager {
     constructor() {
         this.tasks = this.loadTasks();
         this.categories = this.loadCategories();
+        this.categoryColors = this.loadCategoryColors();
         this.currentFilter = 'all';
         this.currentTheme = this.loadTheme();
         this.suggestionTimeout = null;
@@ -286,6 +287,9 @@ class TaskManager {
     }
 
     createTaskHTML(task) {
+        const categoryBadge = task.category ? 
+            `<span class="category-badge" style="background: ${this.getCategoryColor(task.category)}22; color: ${this.getCategoryColor(task.category)}; border: 1px solid ${this.getCategoryColor(task.category)};">${this.escapeHTML(task.category)}</span>` : '';
+        
         return `
             <li class="task-item ${task.completed ? 'completed' : ''}" data-task-id="${task.id}">
                 <input 
@@ -298,6 +302,7 @@ class TaskManager {
                 <div class="task-content">
                     <div class="task-text">${this.escapeHTML(task.text)}</div>
                     <div class="task-meta">
+                        ${categoryBadge}
                         <span class="priority-badge priority-${task.priority}" aria-label="${task.priority} priority">${task.priority}</span>
                     </div>
                 </div>
@@ -362,12 +367,15 @@ class TaskManager {
 
     createCategoryGroupHTML(category, tasks) {
         const canDelete = category !== 'Uncategorized';
+        const color = this.getCategoryColor(category);
+        
         return `
             <div class="category-group" data-category="${this.escapeHTML(category)}">
-                <div class="category-header">
+                <div class="category-header" style="border-left: 4px solid ${color};">
                     <div class="category-title">
+                        <span class="category-color-dot" style="background: ${color};"></span>
                         ${this.escapeHTML(category)}
-                        <span class="category-count">${tasks.length}</span>
+                        <span class="category-count" style="background: ${color};">${tasks.length}</span>
                     </div>
                     ${canDelete ? `<button class="delete-category-btn" title="Delete category">Delete Category</button>` : ''}
                 </div>
@@ -417,6 +425,67 @@ class TaskManager {
     loadCategories() {
         const categories = localStorage.getItem('categories');
         return categories ? JSON.parse(categories) : [];
+    }
+
+    getCategoryColor(category) {
+        // Return existing color or generate new one
+        if (!this.categoryColors[category]) {
+            this.categoryColors[category] = this.generateCategoryColor(category);
+            this.saveCategoryColors();
+        }
+        return this.categoryColors[category];
+    }
+
+    generateCategoryColor(category) {
+        // Use a hash of the category name for consistent colors
+        const hash = this.hashString(category);
+        
+        // Define a palette of professional, accessible colors
+        const colorPalettes = [
+            { h: 210, s: 80, l: 55 },  // Blue
+            { h: 160, s: 70, l: 45 },  // Green
+            { h: 280, s: 70, l: 60 },  // Purple
+            { h: 25, s: 85, l: 55 },   // Orange
+            { h: 340, s: 75, l: 55 },  // Pink
+            { h: 190, s: 75, l: 45 },  // Teal
+            { h: 45, s: 80, l: 55 },   // Gold
+            { h: 310, s: 65, l: 50 },  // Magenta
+            { h: 140, s: 65, l: 50 },  // Emerald
+            { h: 260, s: 60, l: 55 },  // Violet
+            { h: 15, s: 75, l: 55 },   // Red-Orange
+            { h: 180, s: 65, l: 45 },  // Cyan
+        ];
+        
+        // Select color based on hash
+        const palette = colorPalettes[hash % colorPalettes.length];
+        
+        // Add variation based on hash for more unique colors
+        const hueVariation = (hash % 20) - 10;
+        const h = (palette.h + hueVariation + 360) % 360;
+        const s = palette.s;
+        const l = palette.l;
+        
+        return `hsl(${h}, ${s}%, ${l}%)`;
+    }
+
+    hashString(str) {
+        // Simple hash function for consistent color assignment
+        let hash = 0;
+        for (let i = 0; i < str.length; i++) {
+            const char = str.charCodeAt(i);
+            hash = ((hash << 5) - hash) + char;
+            hash = hash & hash; // Convert to 32-bit integer
+        }
+        return Math.abs(hash);
+    }
+
+    saveCategoryColors() {
+        localStorage.setItem('categoryColors', JSON.stringify(this.categoryColors));
+    }
+
+    loadCategoryColors() {
+        const colors = localStorage.getItem('categoryColors');
+        return colors ? JSON.parse(colors) : {};
     }
 
     suggestCategories() {
