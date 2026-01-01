@@ -438,6 +438,14 @@ header h1 {
     gap: 0.5rem;
 }
 
+.category-color-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    box-shadow: 0 0 0 2px var(--card-bg);
+}
+
 .category-count {
     background: var(--primary-color);
     color: white;
@@ -533,9 +541,8 @@ header h1 {
     border-radius: 2px;
     font-size: 0.6875rem;
     font-weight: 600;
-    background: var(--primary-light);
-    color: var(--primary-color);
     letter-spacing: 0.02em;
+    transition: all 0.15s ease;
 }
 
 .priority-badge {
